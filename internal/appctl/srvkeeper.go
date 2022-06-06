@@ -118,9 +118,35 @@ func (s *ServiceKeeper) repeatPingServices(ctx context.Context) error {
 }
 
 func (s *ServiceKeeper) release() error {
-	// TODO to implement
-	panic("not implemented")
-	return nil
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), s.ShutdownTimeout)
+	defer cancel()
+
+	p := ParallelRun{}
+	for _, service := range s.Services {
+		p.do(shutdownCtx, func(context.Context) error {
+			return service.Close()
+		})
+	}
+
+	errWait := make(chan error)
+	go func() {
+		defer close(errWait)
+		if err := p.wait(); err != nil {
+			errWait <- err
+		}
+	}()
+
+	for {
+		select {
+		case err, ok := <-errWait:
+			if ok {
+				return err
+			}
+			return nil
+		case <-shutdownCtx.Done():
+			return shutdownCtx.Err()
+		}
+	}
 }
 
 func (s *ServiceKeeper) checkState(old, new int32) bool {
