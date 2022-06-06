@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  link_shortener:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+
+
+  postgres:
+    image: postgres:14.3
+    environment:
+      POSTGRES_USER: link_shortener
+      POSTGRES_PASSWORD: h3tGFWqJRNEaTyycMITs3
+      POSTGRES_DB: link_shortener
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
