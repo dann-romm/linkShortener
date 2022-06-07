@@ -7,7 +7,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"linkShortener/internal/storage/entity"
-	repository2 "linkShortener/internal/storage/repository"
+	"linkShortener/internal/storage/repository"
 	"os"
 )
 
@@ -18,7 +18,7 @@ var (
 )
 
 type StorageService struct {
-	repo repository2.LinkRepository
+	repo repository.LinkRepository
 }
 
 func (s *StorageService) Init(_ context.Context) error {
@@ -47,9 +47,9 @@ func (s *StorageService) Init(_ context.Context) error {
 		if err != nil {
 			return err
 		}
-		s.repo = repository2.NewLinkGormRepo(db)
+		s.repo = repository.NewLinkGormRepo(db)
 	} else if storageType == "inmemory" {
-		s.repo = repository2.NewLinkInmemoryRepo()
+		s.repo = repository.NewLinkInmemoryRepo()
 	} else {
 		return ErrWrongStorageType
 	}
