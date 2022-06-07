@@ -18,10 +18,20 @@ func NewLinkInmemoryRepo() *LinkInmemoryRepo {
 }
 
 // SaveLink saves a link to the repository
+// link.ShortLink can be changed if it already exists due to the uniqueness of the shortLink
 func (r *LinkInmemoryRepo) SaveLink(link *entity.Link) error {
-	// TODO: handle duplicate short link and handle link collisions
 	r.mux.Lock()
 	defer r.mux.Unlock()
+
+	tmp, err := r.GetLink(link.ShortLink)
+	for err == nil {
+		if tmp.FullLink == link.FullLink {
+			break
+		}
+		link.ShortLink = entity.CreateLink(link.ShortLink)
+		tmp, err = r.GetLink(link.ShortLink)
+	}
+
 	r.storage[link.ShortLink] = link
 	return nil
 }
