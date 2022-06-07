@@ -2,7 +2,7 @@ package repository
 
 import (
 	"errors"
-	"linkShortener/internal/entity"
+	"linkShortener/internal/storage/entity"
 )
 
 type LinkRepository interface {
@@ -11,6 +11,9 @@ type LinkRepository interface {
 	GetAllLink() ([]entity.Link, error)
 	UpdateLink(*entity.Link) error
 	DeleteLink(string) error
+
+	Ping() error
+	Close() error
 }
 
 var (
