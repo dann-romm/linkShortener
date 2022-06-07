@@ -2,8 +2,8 @@ all: postgres
 
 inmemory:
 	@echo "start with inmemory storage"
-	docker-compose up -d --build -e STORAGE_TYPE=inmemory
+	STORAGE_TYPE=inmemory docker-compose up -d --build
 
 postgres:
 	@echo "start with postgres storage"
-	docker-compose up -d --build --profile postgres -e STORAGE_TYPE=postgres
+	STORAGE_TYPE=postgres docker-compose --profile postgres up -d --build

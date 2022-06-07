@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"linkShortener/internal/storage/entity"
 )
 
@@ -15,7 +14,3 @@ type LinkRepository interface {
 	Ping() error
 	Close() error
 }
-
-var (
-	ErrLinkNotFound = errors.New("link not found")
-)

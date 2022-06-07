@@ -15,6 +15,7 @@ var storageType = os.Getenv("STORAGE_TYPE")
 
 var (
 	ErrWrongStorageType = errors.New("wrong storage type")
+	ErrLinkNotFound     = errors.New("link not found")
 )
 
 type StorageService struct {

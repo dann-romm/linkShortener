@@ -22,14 +22,16 @@ func (s *Server) GetLink(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "short_link is required"})
 	}
 	fullLink, err := s.StorageService.GetLink(context.Background(), shortLink)
-	if err != nil {
+	if err == storage.ErrLinkNotFound {
+		return c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
+	} else if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 	return c.JSON(http.StatusOK, map[string]string{"full_link": fullLink})
 }
 
 func (s *Server) SaveLink(c echo.Context) error {
-	fullLink := c.FormValue("full_link")
+	fullLink := c.QueryParam("full_link")
 	if fullLink == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "full_link is required"})
 	}
@@ -44,15 +46,8 @@ func (s *Server) appStart(ctx context.Context, halt <-chan struct{}) error {
 	e := echo.New()
 	e.GET("/link", s.GetLink)
 	e.POST("/link", s.SaveLink)
-	//e.HTTPErrorHandler = func(err error, c echo.Context) {
-	//
-	//
-	//	if err == echo.ErrNotFound {
-	//		_ = c.JSON(http.StatusNotFound, map[string]string{"error": "not found"})
-	//	} else {
-	//		_ = c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
-	//	}
-	//}
+	// TODO: add health check endpoint
+	// TODO: add error handler
 
 	var port = os.Getenv("PORT")
 	if port == "" {

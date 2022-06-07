@@ -136,16 +136,14 @@ func (s *ServiceKeeper) release() error {
 		}
 	}()
 
-	for {
-		select {
-		case err, ok := <-errWait:
-			if ok {
-				return err
-			}
-			return nil
-		case <-shutdownCtx.Done():
-			return shutdownCtx.Err()
+	select {
+	case err, ok := <-errWait:
+		if ok {
+			return err
 		}
+		return nil
+	case <-shutdownCtx.Done():
+		return shutdownCtx.Err()
 	}
 }
 

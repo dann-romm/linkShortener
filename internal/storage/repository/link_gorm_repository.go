@@ -2,7 +2,9 @@ package repository
 
 import (
 	"gorm.io/gorm"
+	"linkShortener/internal/storage"
 	"linkShortener/internal/storage/entity"
+	"log"
 )
 
 type LinkGormRepo struct {
@@ -11,6 +13,7 @@ type LinkGormRepo struct {
 
 // NewLinkGormRepo creates a new LinkGormRepo
 func NewLinkGormRepo(db *gorm.DB) *LinkGormRepo {
+	_ = db.AutoMigrate(&entity.Link{})
 	return &LinkGormRepo{
 		db: db,
 	}
@@ -22,7 +25,7 @@ func (r *LinkGormRepo) SaveLink(link *entity.Link) error {
 	tmp, err := r.GetLink(link.ShortLink)
 	for err == nil {
 		if tmp.FullLink == link.FullLink {
-			break
+			return nil
 		}
 		link.ShortLink = entity.CreateLink(link.ShortLink)
 		tmp, err = r.GetLink(link.ShortLink)
@@ -35,9 +38,9 @@ func (r *LinkGormRepo) GetLink(shortLink string) (*entity.Link, error) {
 	var link entity.Link
 	if err := r.db.Where("short_link = ?", shortLink).First(&link).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, ErrLinkNotFound
+			return &entity.Link{}, storage.ErrLinkNotFound
 		}
-		return nil, err
+		return &entity.Link{}, err
 	}
 	return &link, nil
 }
@@ -47,9 +50,9 @@ func (r *LinkGormRepo) GetAllLink() ([]entity.Link, error) {
 	var links []entity.Link
 	if err := r.db.Find(&links).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, ErrLinkNotFound
+			return []entity.Link{}, storage.ErrLinkNotFound
 		}
-		return nil, err
+		return []entity.Link{}, err
 	}
 	return links, nil
 }
@@ -58,7 +61,7 @@ func (r *LinkGormRepo) GetAllLink() ([]entity.Link, error) {
 func (r *LinkGormRepo) UpdateLink(link *entity.Link) error {
 	err := r.db.Save(link).Error
 	if err == gorm.ErrRecordNotFound {
-		return ErrLinkNotFound
+		return storage.ErrLinkNotFound
 	}
 	return err
 }
@@ -67,7 +70,7 @@ func (r *LinkGormRepo) UpdateLink(link *entity.Link) error {
 func (r *LinkGormRepo) DeleteLink(shortLink string) error {
 	err := r.db.Where("short_link = ?", shortLink).Delete(&entity.Link{}).Error
 	if err == gorm.ErrRecordNotFound {
-		return ErrLinkNotFound
+		return storage.ErrLinkNotFound
 	}
 	return err
 }
@@ -84,6 +87,7 @@ func (r *LinkGormRepo) Close() error {
 	if db, err := r.db.DB(); err != nil {
 		return err
 	} else {
+		log.Println("Closing database connection")
 		return db.Close()
 	}
 }
