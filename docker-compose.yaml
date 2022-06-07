@@ -5,16 +5,26 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - STORAGE_TYPE=${STORAGE_TYPE}
+      - PORT=8080
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=link_shortener
+      - POSTGRES_PASSWORD=h3tGFWqJRNEaTyycMITs3
+      - POSTGRES_DB=link_shortener
     ports:
       - "8080:8080"
 
 
   postgres:
     image: postgres:14.3
+    profiles:
+      - postgres
     environment:
-      POSTGRES_USER: link_shortener
-      POSTGRES_PASSWORD: h3tGFWqJRNEaTyycMITs3
-      POSTGRES_DB: link_shortener
+      - POSTGRES_USER=link_shortener
+      - POSTGRES_PASSWORD=h3tGFWqJRNEaTyycMITs3
+      - POSTGRES_DB=link_shortener
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     ports:

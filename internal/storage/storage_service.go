@@ -64,12 +64,12 @@ func (s *StorageService) Close() error {
 	return s.repo.Close()
 }
 
-func (s *StorageService) SaveNewLink(_ context.Context, fullLink string) error {
+func (s *StorageService) SaveNewLink(_ context.Context, fullLink string) (string, error) {
 	link, err := entity.NewLink(fullLink)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return s.repo.SaveLink(link)
+	return link.ShortLink, s.repo.SaveLink(link)
 }
 
 func (s *StorageService) GetLink(_ context.Context, shortLink string) (string, error) {
