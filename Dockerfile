@@ -10,8 +10,4 @@ COPY . /app
 
 EXPOSE 8080
 
-# TODO: think about how to build app in a different ways
-# Makefile maybe
-
-#RUN go build -o weatherBackend cmd/weatherBackend/main.go
-#CMD ["./weatherBackend"]
+CMD ["go", "run", "cmd/linkShortener/main.go"]

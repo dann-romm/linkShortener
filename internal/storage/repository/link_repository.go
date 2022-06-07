@@ -1,7 +1,12 @@
 package repository
 
 import (
+	"errors"
 	"linkShortener/internal/storage/entity"
+)
+
+var (
+	ErrLinkNotFound = errors.New("link not found")
 )
 
 type LinkRepository interface {

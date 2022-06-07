@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"linkShortener/internal/appctl"
 	"linkShortener/internal/storage"
+	"linkShortener/internal/storage/repository"
 	"log"
 	"net/http"
 	"os"
@@ -22,7 +23,7 @@ func (s *Server) GetLink(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "short_link is required"})
 	}
 	fullLink, err := s.StorageService.GetLink(context.Background(), shortLink)
-	if err == storage.ErrLinkNotFound {
+	if err == repository.ErrLinkNotFound {
 		return c.JSON(http.StatusNotFound, map[string]string{"error": err.Error()})
 	} else if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
@@ -43,17 +44,28 @@ func (s *Server) SaveLink(c echo.Context) error {
 }
 
 func (s *Server) appStart(ctx context.Context, halt <-chan struct{}) error {
+	// TODO: add health check endpoint
 	e := echo.New()
 	e.GET("/link", s.GetLink)
 	e.POST("/link", s.SaveLink)
-	// TODO: add health check endpoint
-	// TODO: add error handler
 
-	var port = os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
+	errCh := make(chan error, 1)
+
+	go func() {
+		defer close(errCh)
+		var port = os.Getenv("PORT")
+		if port == "" {
+			port = "8080"
+		}
+		errCh <- e.Start(fmt.Sprintf(":%s", port))
+	}()
+
+	select {
+	case err := <-errCh:
+		return err
+	case <-ctx.Done():
+		return nil
 	}
-	return e.Start(fmt.Sprintf(":%s", port))
 }
 
 func main() {

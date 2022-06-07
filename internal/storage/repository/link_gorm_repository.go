@@ -2,7 +2,6 @@ package repository
 
 import (
 	"gorm.io/gorm"
-	"linkShortener/internal/storage"
 	"linkShortener/internal/storage/entity"
 	"log"
 )
@@ -38,7 +37,7 @@ func (r *LinkGormRepo) GetLink(shortLink string) (*entity.Link, error) {
 	var link entity.Link
 	if err := r.db.Where("short_link = ?", shortLink).First(&link).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return &entity.Link{}, storage.ErrLinkNotFound
+			return &entity.Link{}, ErrLinkNotFound
 		}
 		return &entity.Link{}, err
 	}
@@ -50,7 +49,7 @@ func (r *LinkGormRepo) GetAllLink() ([]entity.Link, error) {
 	var links []entity.Link
 	if err := r.db.Find(&links).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return []entity.Link{}, storage.ErrLinkNotFound
+			return []entity.Link{}, ErrLinkNotFound
 		}
 		return []entity.Link{}, err
 	}
@@ -61,7 +60,7 @@ func (r *LinkGormRepo) GetAllLink() ([]entity.Link, error) {
 func (r *LinkGormRepo) UpdateLink(link *entity.Link) error {
 	err := r.db.Save(link).Error
 	if err == gorm.ErrRecordNotFound {
-		return storage.ErrLinkNotFound
+		return ErrLinkNotFound
 	}
 	return err
 }
@@ -70,7 +69,7 @@ func (r *LinkGormRepo) UpdateLink(link *entity.Link) error {
 func (r *LinkGormRepo) DeleteLink(shortLink string) error {
 	err := r.db.Where("short_link = ?", shortLink).Delete(&entity.Link{}).Error
 	if err == gorm.ErrRecordNotFound {
-		return storage.ErrLinkNotFound
+		return ErrLinkNotFound
 	}
 	return err
 }

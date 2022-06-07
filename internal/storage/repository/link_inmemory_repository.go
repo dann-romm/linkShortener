@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"linkShortener/internal/storage"
 	"linkShortener/internal/storage/entity"
 	"sync"
 )
@@ -44,7 +43,7 @@ func (r *LinkInmemoryRepo) GetLink(shortLink string) (*entity.Link, error) {
 	if link, ok := r.storage[shortLink]; ok {
 		return link, nil
 	} else {
-		return &entity.Link{}, storage.ErrLinkNotFound
+		return &entity.Link{}, ErrLinkNotFound
 	}
 }
 
@@ -70,7 +69,7 @@ func (r *LinkInmemoryRepo) UpdateLink(link *entity.Link) error {
 		r.storage[link.ShortLink] = link
 		return nil
 	} else {
-		return storage.ErrLinkNotFound
+		return ErrLinkNotFound
 	}
 }
 
@@ -83,7 +82,7 @@ func (r *LinkInmemoryRepo) DeleteLink(shortLink string) error {
 		delete(r.storage, shortLink)
 		return nil
 	} else {
-		return storage.ErrLinkNotFound
+		return ErrLinkNotFound
 	}
 }
 
@@ -92,6 +91,6 @@ func (r *LinkInmemoryRepo) Ping() error {
 }
 
 func (r *LinkInmemoryRepo) Close() error {
-	// TODO: save to disk
+	//TODO: save to disk
 	return nil
 }
