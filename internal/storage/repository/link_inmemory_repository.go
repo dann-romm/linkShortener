@@ -1,8 +1,15 @@
 package repository
 
 import (
+	"bytes"
+	"encoding/gob"
+	"io/ioutil"
 	"linkShortener/internal/storage/entity"
 	"sync"
+)
+
+var (
+	linksFilename = "data/inmemory/links.gob"
 )
 
 type LinkInmemoryRepo struct {
@@ -11,9 +18,16 @@ type LinkInmemoryRepo struct {
 }
 
 func NewLinkInmemoryRepo() *LinkInmemoryRepo {
-	return &LinkInmemoryRepo{
+	r := &LinkInmemoryRepo{
 		storage: make(map[string]*entity.Link),
 	}
+	b, err := ioutil.ReadFile(linksFilename)
+	if err != nil {
+		return r
+	}
+	d := gob.NewDecoder(bytes.NewBuffer(b))
+	_ = d.Decode(&r.storage)
+	return r
 }
 
 // SaveLink saves a link to the repository
@@ -91,6 +105,14 @@ func (r *LinkInmemoryRepo) Ping() error {
 }
 
 func (r *LinkInmemoryRepo) Close() error {
-	//TODO: save to disk
+	b := new(bytes.Buffer)
+	e := gob.NewEncoder(b)
+	if err := e.Encode(r.storage); err != nil {
+		return err
+	}
+	err := ioutil.WriteFile(linksFilename, b.Bytes(), 0644)
+	if err != nil {
+		return err
+	}
 	return nil
 }
