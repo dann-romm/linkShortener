@@ -1,4 +1,4 @@
-package main
+package linkservice
 
 import (
 	"github.com/stretchr/testify/assert"

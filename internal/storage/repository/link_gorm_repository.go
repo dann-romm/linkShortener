@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"gorm.io/gorm"
 	"linkShortener/internal/storage/entity"
 	"log"
@@ -12,6 +13,7 @@ type LinkGormRepo struct {
 
 // NewLinkGormRepo creates a new LinkGormRepo
 func NewLinkGormRepo(db *gorm.DB) *LinkGormRepo {
+	log.Println("[LinkGormRepo] migrating database")
 	_ = db.AutoMigrate(&entity.Link{})
 	return &LinkGormRepo{
 		db: db,
@@ -19,15 +21,9 @@ func NewLinkGormRepo(db *gorm.DB) *LinkGormRepo {
 }
 
 // SaveLink saves a link to the repository
-// link.ShortLink can be changed if it already exists due to the uniqueness of the shortLink
 func (r *LinkGormRepo) SaveLink(link *entity.Link) error {
-	tmp, err := r.GetLink(link.ShortLink)
-	for err == nil {
-		if tmp.FullLink == link.FullLink {
-			return nil
-		}
-		link.ShortLink = entity.CreateLink(link.ShortLink)
-		tmp, err = r.GetLink(link.ShortLink)
+	if _, err := r.GetLink(link.ShortLink); err == nil {
+		return ErrLinkAlreadyExists
 	}
 	return r.db.Create(link).Error
 }
@@ -35,7 +31,7 @@ func (r *LinkGormRepo) SaveLink(link *entity.Link) error {
 // GetLink returns a link from the repository
 func (r *LinkGormRepo) GetLink(shortLink string) (*entity.Link, error) {
 	var link entity.Link
-	if err := r.db.Where("short_link = ?", shortLink).First(&link).Error; err != nil {
+	if err := r.db.Find(&link, "short_link = ?", shortLink).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return &entity.Link{}, ErrLinkNotFound
 		}
@@ -74,11 +70,11 @@ func (r *LinkGormRepo) DeleteLink(shortLink string) error {
 	return err
 }
 
-func (r *LinkGormRepo) Ping() error {
+func (r *LinkGormRepo) Ping(ctx context.Context) error {
 	if db, err := r.db.DB(); err != nil {
 		return err
 	} else {
-		return db.Ping()
+		return db.PingContext(ctx)
 	}
 }
 
@@ -86,7 +82,7 @@ func (r *LinkGormRepo) Close() error {
 	if db, err := r.db.DB(); err != nil {
 		return err
 	} else {
-		log.Println("Closing database connection")
+		log.Println("[LinkGormRepo] closing database connection")
 		return db.Close()
 	}
 }

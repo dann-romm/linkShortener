@@ -1,12 +1,14 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"linkShortener/internal/storage/entity"
 )
 
 var (
-	ErrLinkNotFound = errors.New("link not found")
+	ErrLinkNotFound      = errors.New("link not found")
+	ErrLinkAlreadyExists = errors.New("link already exists")
 )
 
 type LinkRepository interface {
@@ -16,6 +18,6 @@ type LinkRepository interface {
 	UpdateLink(*entity.Link) error
 	DeleteLink(string) error
 
-	Ping() error
+	Ping(ctx context.Context) error
 	Close() error
 }

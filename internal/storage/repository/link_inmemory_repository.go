@@ -2,6 +2,7 @@ package repository
 
 import (
 	"bytes"
+	"context"
 	"encoding/gob"
 	"io/ioutil"
 	"linkShortener/internal/storage/entity"
@@ -73,13 +74,8 @@ func (r *LinkInmemoryRepo) DeleteLink(shortLink string) error {
 }
 
 func (r *LinkInmemoryRepo) saveLink(link *entity.Link) error {
-	tmp, err := r.getLink(link.ShortLink)
-	for err == nil {
-		if tmp.FullLink == link.FullLink {
-			break
-		}
-		link.ShortLink = entity.CreateLink(link.ShortLink)
-		tmp, err = r.getLink(link.ShortLink)
+	if _, ok := r.storage[link.ShortLink]; ok {
+		return ErrLinkAlreadyExists
 	}
 	r.storage[link.ShortLink] = link
 	return nil
@@ -117,7 +113,7 @@ func (r *LinkInmemoryRepo) deleteLink(shortLink string) error {
 	return nil
 }
 
-func (r *LinkInmemoryRepo) Ping() error {
+func (r *LinkInmemoryRepo) Ping(_ context.Context) error {
 	return nil
 }
 

@@ -8,7 +8,7 @@ services:
     environment:
       - STORAGE_TYPE=${STORAGE_TYPE}
       - PORT=8080
-      - POSTGRES_HOST=localhost
+      - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_USER=link_shortener
       - POSTGRES_PASSWORD=h3tGFWqJRNEaTyycMITs3
@@ -17,7 +17,7 @@ services:
       - ./data/inmemory:/app/data/inmemory
     ports:
       - "8080:8080"
-    restart: always
+    restart: unless-stopped
     stop_grace_period: 20s
     stop_signal: SIGINT
 #    TODO: add healthcheck
@@ -36,4 +36,4 @@ services:
       - ./data/postgres:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    restart: always
+    restart: unless-stopped
