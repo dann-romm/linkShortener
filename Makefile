@@ -7,3 +7,7 @@ inmemory:
 postgres:
 	@echo "start with postgres storage"
 	STORAGE_TYPE=postgres docker-compose --profile postgres up -d --build
+
+stop:
+	@echo "stop all containers"
+	docker-compose down

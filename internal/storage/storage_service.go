@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 	"linkShortener/internal/storage/entity"
 	"linkShortener/internal/storage/repository"
+	"log"
 	"os"
 )
 
@@ -47,6 +48,7 @@ func (s *StorageService) Init(_ context.Context) error {
 		if err != nil {
 			return err
 		}
+		log.Println("[StorageService] connected to postgres")
 		s.repo = repository.NewLinkGormRepo(db)
 	} else if storageType == "inmemory" {
 		s.repo = repository.NewLinkInmemoryRepo()
@@ -65,6 +67,7 @@ func (s *StorageService) Close() error {
 }
 
 func (s *StorageService) SaveNewLink(_ context.Context, fullLink string) (string, error) {
+	log.Printf("[StorageService] saving new link %s", fullLink)
 	link, err := entity.NewLink(fullLink)
 	if err != nil {
 		return "", err
@@ -73,6 +76,7 @@ func (s *StorageService) SaveNewLink(_ context.Context, fullLink string) (string
 }
 
 func (s *StorageService) GetLink(_ context.Context, shortLink string) (string, error) {
+	log.Printf("[StorageService] getting link for %s", shortLink)
 	link, err := s.repo.GetLink(shortLink)
 	return link.FullLink, err
 }

@@ -2,6 +2,7 @@ package appctl
 
 import (
 	"context"
+	"log"
 	"sync/atomic"
 	"time"
 )
@@ -81,6 +82,7 @@ func (s *ServiceKeeper) Release() error {
 }
 
 func (s *ServiceKeeper) initAllServices(ctx context.Context) error {
+	log.Println("[srvkeeper] Initializing all services")
 	initCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -118,6 +120,7 @@ func (s *ServiceKeeper) repeatPingServices(ctx context.Context) error {
 }
 
 func (s *ServiceKeeper) release() error {
+	log.Println("[srvkeeper] Releasing all services")
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), s.ShutdownTimeout)
 	defer cancel()
 

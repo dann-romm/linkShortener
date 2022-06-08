@@ -73,6 +73,7 @@ func (s *Server) appStart(ctx context.Context, halt <-chan struct{}) error {
 		return func(c echo.Context) error {
 			select {
 			case <-halt:
+				log.Println("[server] halt channel closed, returning 503")
 				return c.NoContent(http.StatusServiceUnavailable)
 			default:
 				return next(c)
@@ -87,6 +88,7 @@ func (s *Server) appStart(ctx context.Context, halt <-chan struct{}) error {
 		if port == "" {
 			port = "8080"
 		}
+		log.Printf("[server] starting server on port %s", port)
 		errCh <- e.Start(fmt.Sprintf(":%s", port))
 	}()
 

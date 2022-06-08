@@ -1,0 +1,17 @@
+###
+GET localhost:8080/link?short_link=notexist__
+
+###
+POST localhost:8080/link?full_link=http://www.google.com
+
+###
+GET localhost:8080/link?full_link=www.google.com
+
+###
+GET localhost:8080/link?full_link=https://google.com/
+
+###
+POST localhost:8080/link?full_link=http://google.com/
+
+###
+GET localhost:8080/link?full_link=google.com
