@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"linkShortener/internal/appctl"
+	"linkShortener/internal/appctrl"
 	"linkShortener/internal/storage"
 	"linkShortener/internal/storage/repository"
 	"log"
@@ -95,6 +95,10 @@ func (s *Server) appStart(ctx context.Context, halt <-chan struct{}) error {
 	select {
 	case err := <-errCh:
 		return err
+	case <-halt:
+		// TODO: wait current requests to finish
+		time.Sleep(time.Second * 2)
+		return nil
 	case <-ctx.Done():
 		return nil
 	}
@@ -103,18 +107,18 @@ func (s *Server) appStart(ctx context.Context, halt <-chan struct{}) error {
 func main() {
 	server := &Server{}
 
-	var resources = appctl.ServiceKeeper{
-		Services: []appctl.Service{
+	var resources = appctrl.ServiceKeeper{
+		Services: []appctrl.Service{
 			&server.StorageService,
 		},
-		ShutdownTimeout: time.Second * 10,
-		PingPeriod:      time.Second * 5,
+		ShutdownTimeout: time.Second * 4,
+		PingPeriod:      time.Second * 10,
 	}
 
-	var app = appctl.Application{
+	var app = appctrl.Application{
 		MainFunc:           server.appStart,
 		Resources:          &resources,
-		TerminationTimeout: time.Second * 10,
+		TerminationTimeout: time.Second * 7,
 	}
 
 	if err := app.Run(); err != nil {

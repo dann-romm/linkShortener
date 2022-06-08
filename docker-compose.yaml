@@ -13,9 +13,16 @@ services:
       - POSTGRES_USER=link_shortener
       - POSTGRES_PASSWORD=h3tGFWqJRNEaTyycMITs3
       - POSTGRES_DB=link_shortener
+    volumes:
+      - ./data/inmemory:/app/data/inmemory
     ports:
       - "8080:8080"
-
+    restart: always
+    stop_grace_period: 20s
+    stop_signal: SIGINT
+#    TODO: add healthcheck
+#    healthcheck:
+#      test: ["CMD", "curl", "http://localhost:8080/health"]
 
   postgres:
     image: postgres:14.3

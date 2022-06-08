@@ -1,4 +1,4 @@
-package appctl
+package appctrl
 
 import (
 	"context"

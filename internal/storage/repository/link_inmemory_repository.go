@@ -53,8 +53,8 @@ func (r *LinkInmemoryRepo) GetLink(shortLink string) (*entity.Link, error) {
 
 // GetAllLink returns all links from the repository
 func (r *LinkInmemoryRepo) GetAllLink() ([]entity.Link, error) {
-	r.mux.Lock()
-	defer r.mux.Unlock()
+	r.mux.RLock()
+	defer r.mux.RUnlock()
 	return r.getAllLink()
 }
 
@@ -122,6 +122,8 @@ func (r *LinkInmemoryRepo) Ping() error {
 }
 
 func (r *LinkInmemoryRepo) Close() error {
+	r.mux.Lock()
+	defer r.mux.Unlock()
 	log.Println("[inmemory] saving links to file")
 	b := new(bytes.Buffer)
 	e := gob.NewEncoder(b)

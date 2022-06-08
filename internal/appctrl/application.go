@@ -1,4 +1,4 @@
-package appctl
+package appctrl
 
 import (
 	"context"
@@ -80,7 +80,7 @@ func (a *Application) Run() error {
 }
 
 func (a *Application) init() error {
-	log.Println("[appctl] Initializing application")
+	log.Println("[appctrl] Initializing application")
 	if a.TerminationTimeout == 0 {
 		a.TerminationTimeout = defaultTerminationTimeout
 	}
@@ -98,14 +98,14 @@ func (a *Application) init() error {
 }
 
 func (a *Application) watchResources(services chan<- struct{}) {
-	log.Println("[appctl] Starting resource watcher")
+	log.Println("[appctrl] Starting resource watcher")
 	defer close(services)
 	defer a.Shutdown()
 	a.setError(a.Resources.Watch(a))
 }
 
 func (a *Application) run(osSig <-chan os.Signal) error {
-	log.Println("[appctl] Running application")
+	log.Println("[appctrl] Running application")
 	defer a.Shutdown()
 	errRun := make(chan error, 1)
 	errHalt := make(chan error, 1)
@@ -147,7 +147,7 @@ func (a *Application) run(osSig <-chan os.Signal) error {
 
 func (a *Application) Halt() {
 	if a.checkState(appStateRunning, appStateHalt) {
-		log.Println("[appctl] Halting application")
+		log.Println("[appctrl] Halting application")
 		close(a.halt)
 	}
 }
@@ -155,7 +155,7 @@ func (a *Application) Halt() {
 func (a *Application) Shutdown() {
 	a.Halt()
 	if a.checkState(appStateHalt, appStateShutdown) {
-		log.Println("[appctl] Shutting down application")
+		log.Println("[appctrl] Shutting down application")
 		close(a.done)
 	}
 }

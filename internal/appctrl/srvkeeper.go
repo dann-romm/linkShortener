@@ -1,4 +1,4 @@
-package appctl
+package appctrl
 
 import (
 	"context"
@@ -70,6 +70,7 @@ func (s *ServiceKeeper) Watch(ctx context.Context) error {
 
 func (s *ServiceKeeper) Stop() {
 	if s.checkState(srvStateRunning, srvStateShutdown) {
+		log.Println("[srvkeeper] Stopping all services")
 		close(s.stop)
 	}
 }
@@ -94,7 +95,7 @@ func (s *ServiceKeeper) initAllServices(ctx context.Context) error {
 }
 
 func (s *ServiceKeeper) pingServices(ctx context.Context) error {
-	pingCtx, cancel := context.WithCancel(ctx)
+	pingCtx, cancel := context.WithTimeout(ctx, s.PingTimeout)
 	defer cancel()
 
 	p := ParallelRun{}
@@ -108,6 +109,7 @@ func (s *ServiceKeeper) repeatPingServices(ctx context.Context) error {
 	for {
 		select {
 		case <-s.stop:
+			log.Println("[srvkeeper] stop channel closed")
 			return nil
 		case <-ctx.Done():
 			return ctx.Err()
