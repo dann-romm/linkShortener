@@ -2,7 +2,7 @@
 
 [//]: # ([![forthebadge]&#40;https://forthebadge.com/images/badges/made-with-go.svg&#41;]&#40;https://forthebadge.com&#41; [![forthebadge]&#40;http://forthebadge.com/images/badges/built-with-love.svg&#41;]&#40;http://forthebadge.com&#41;)
 
-a simple microservice for shortening links
+a microservice for shortening links
 
 # Usage
 
